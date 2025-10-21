@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+
+# Docker volumes
+data/
+db_data/
+*.db
+
+# VSCode / IDE
+.vscode/
+.idea/
+
+# Byte-compiled / logs
+*.log
+*.sqlite3
+
+# Docker build files
+*.pid

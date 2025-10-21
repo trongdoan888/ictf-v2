@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+  <head><meta charset="utf-8"><title>iCTF Mini Scoreboard</title></head>
+  <body>
+    <h1>iCTF Mini - Scoreboard</h1>
+    <ul>
+      {% for team, score in scores.items() %}
+        <li><strong>{{team}}</strong>: {{score}}</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>

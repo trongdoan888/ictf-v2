@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  database:
+    build: ./database
+    container_name: ictf_database
+    ports:
+      - "5000:5000"
+    volumes:
+      - db_data:/app/data
+    networks:
+      - ictf-net
+
+  gamebot:
+    build: ./gamebot
+    container_name: ictf_gamebot
+    depends_on:
+      - database
+    environment:
+      - DB_URL=http://database:5000
+      - TICK_INTERVAL=30
+      - TEAMS=team1
+    networks:
+      - ictf-net
+
+  scriptbot:
+    build: ./scriptbot
+    container_name: ictf_scriptbot
+    depends_on:
+      - database
+    environment:
+      - DB_URL=http://database:5000
+      - SCRIPT_INTERVAL=20
+      - TEAMS=team1
+    networks:
+      - ictf-net
+
+  scoreboard:
+    build: ./scoreboard
+    container_name: ictf_scoreboard
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    environment:
+      - DB_URL=http://database:5000
+    networks:
+      - ictf-net
+
+  team1:
+    build: ./services/team1
+    container_name: team1_service
+    ports:
+      - "9001:9001"
+    networks:
+      - ictf-net
+
+volumes:
+  db_data:
+
+networks:
+  ictf-net:
