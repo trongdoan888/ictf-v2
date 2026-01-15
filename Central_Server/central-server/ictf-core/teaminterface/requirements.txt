@@ -1,0 +1,8 @@
+Flask
+Flask-RESTful
+Flask-HTTPAuth
+Flask-Caching
+passlib
+itsdangerous
+pycountry
+requests

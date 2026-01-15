@@ -1,0 +1,57 @@
+services:
+  # 1. Database (Sử dụng Dockerfile của framework)
+  database:
+    build:
+      context: ./ictf-core
+      dockerfile: hephaestus/docker/1_database/Dockerfile
+      network: host
+    container_name: ictf-database
+    environment:
+      - POSTGRES_USER=ictf
+      - POSTGRES_PASSWORD=ictf_pass
+      - POSTGRES_DB=ictf_db
+      - LOGSTASH_ID=ictf-db-server
+    networks:
+      - ictf-internal
+
+  # 2. Redis (Dùng image có sẵn cho nhẹ)
+  redis:
+    image: redis:6-alpine
+    container_name: ictf-redis
+    networks:
+      - ictf-internal
+
+  # 3. API/Interface (Đây là trung tâm điều phối)
+  api:
+    build:
+      context: ./ictf-core
+      dockerfile: hephaestus/docker/1_teaminterface/Dockerfile
+      network: host
+    container_name: ictf-api
+    depends_on:
+      - database
+      - redis
+    ports:
+      - "8080:80"
+    environment:
+      - DATABASE_URL=postgres://ictf:ictf_pass@database:5432/ictf_db
+      - LOGSTASH_ID=ictf-api-server  # Thêm dòng này
+    networks:
+      - ictf-internal
+    extra_hosts:
+      - "logger.ictf:127.0.0.1"
+  # 4. Gamebot (Trọng tài điều khiển Tick)
+  gamebot:
+    build:
+      context: ./ictf-core
+      dockerfile: hephaestus/docker/1_gamebot/Dockerfile
+      network: host
+    container_name: ictf-gamebot
+    depends_on:
+      - api
+    networks:
+      - ictf-internal
+
+networks:
+  ictf-internal:
+    driver: bridge

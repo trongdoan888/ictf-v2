@@ -1,0 +1,8 @@
+wheel
+nose
+pycryptodome
+requests
+nclib
+docker
+python-logstash
+pika

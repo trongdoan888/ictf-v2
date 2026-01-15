@@ -1,0 +1,76 @@
+version: '3'
+
+services:
+  database:
+    image: mysql:5.7
+    container_name: ictf-database
+    environment:
+      # QUAN TRỌNG: Mật khẩu phải khớp với DB_SECRET trong settings.py của bạn
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=ictf
+      - MYSQL_USER=ictf
+      - MYSQL_PASSWORD=VfkcU4oIZ97vL2LGPCleeYRit
+    ports:
+      - "3306:3306"
+    networks:
+      ictf-internal:
+        aliases:
+          - database.ictf
+
+  redis:
+    image: redis:6-alpine
+    container_name: ictf-redis
+    networks:
+      - ictf-internal
+
+  api:
+    build:
+      context: ./central-server/ictf-core
+      dockerfile: hephaestus/docker/1_teaminterface/Dockerfile
+    container_name: ictf-api
+    entrypoint: /bin/bash -c "pip install uwsgi && chmod +x ./start.sh && ./start.sh"
+    depends_on:
+      - database
+      - redis
+    ports:
+      - "8080:80"
+    environment:
+      - DATABASE_URL=mysql://root:VfkcU4oIZ97vL2LGPCleeYRit@database:3306/ictf
+    networks:
+      - ictf-internal
+
+  gamebot:
+    build:
+      context: ./ictf-core
+      dockerfile: hephaestus/docker/1_gamebot/Dockerfile
+    container_name: ictf-gamebot
+    ports:
+      - "5000:5000"
+    volumes:
+      - /home/server/ictf-final/ictf_final_web.py:/opt/ictf/gamebot/ictf_final_web.py
+    entrypoint: ["python3", "gamebot.py"]
+    environment:
+      - DATABASE_HOST=database.ictf
+      - DATABASE_PORT=3306
+      - DATABASE_USER=ictf
+      - DATABASE_PASSWORD=VfkcU4oIZ97vL2LGPCleeYRit
+      - DATABASE_NAME=ictf
+      - REDIS_HOST=redis
+      - RABBIT_ENDPOINT=redis
+      - RABBIT_PORT=6379
+      - RABBIT_USERNAME=guest
+      - RABBIT_PASSWORD=guest
+      - NUM_SCRIPTBOTS=1
+      - GAME_NAME=ictf_research
+      - TICK_TIME=60
+      - LOGSTASH_ID=ictf_bot
+    depends_on:
+      - database
+      - api
+      - redis
+    networks:
+      - ictf-internal
+
+networks:
+  ictf-internal:
+    driver: bridge

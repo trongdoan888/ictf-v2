@@ -1,0 +1,12 @@
+services:
+  ictf-gamebot:
+    image: python:3.9-slim
+    container_name: ictf-gamebot
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./ictf_final_web.py:/app/ictf_final_web.py
+    working_dir: /app
+    command: >
+      sh -c "pip install flask flask-cors requests && python ictf_final_web.py"
+    restart: always

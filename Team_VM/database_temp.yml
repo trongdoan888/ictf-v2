@@ -1,0 +1,11 @@
+  database:
+    image: mysql:8
+    container_name: ictf-database
+    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=ictf
+    ports:
+      - "3306:3306"
+    networks:
+      - ictf-internal

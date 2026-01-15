@@ -1,0 +1,6 @@
+uwsgi
+flask
+flask-sqlalchemy
+mysql-connector-python
+redis
+requests
